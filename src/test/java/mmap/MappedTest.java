@@ -40,6 +40,10 @@ public class MappedTest {
         consumeQueueMappedFile = new MappedFile(CONSUME_QUEUE_FILE_NAME, FILE_LENGTH);
         for(Message message :messageList){
             byte[] bytes = message.getContent().getBytes(StandardCharsets.UTF_8);
+            /**
+             * 自定义协议
+             * 消息id（4个字节），消息长度（8个字节），消息时间戳（8个字节），消息tag(8个字节)
+             */
             //计算消息长度
             int messageSize =
                  4 //消息id
