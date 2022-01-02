@@ -26,6 +26,14 @@ public class MappedFile {
     private long fileFromOffset;
     private MappedByteBuffer mappedByteBuffer;
 
+    public MappedByteBuffer getMappedByteBuffer() {
+        return mappedByteBuffer;
+    }
+
+    public void setMappedByteBuffer(MappedByteBuffer mappedByteBuffer) {
+        this.mappedByteBuffer = mappedByteBuffer;
+    }
+
     public MappedFile(final String fileName, final int fileSize) {
         init(fileName, fileSize);
     }
