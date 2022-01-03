@@ -96,5 +96,8 @@ public class MappedFile {
         byteBufferNew.limit(size);
         return byteBufferNew;
     }
-
+    //判断文件是否已经写满
+    public boolean isFull() {
+        return false;
+    }
 }

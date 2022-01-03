@@ -1,13 +1,9 @@
 package mmap;
 
 import com.bigyj.mmap.MappedFile;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -18,14 +14,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MappedTest {
     private static final String FILE_NAME = "D://000000";
     private static final int FILE_LENGTH = 1024 * 64;
-    private static String CONSUME_QUEUE_FILE_NAME = "D://consumeQueue/000000";
-    private static String INDEX_FILE_NAME = "D://index/000000";
+    private static final String CONSUME_QUEUE_FILE_NAME = "D://consumeQueue/000000";
+    private static final String INDEX_FILE_NAME = "D://index/000000";
     private static final int INDEX_FILE_LENGTH = 40+50*4+50*36;
 
-    private static int hashSlotSize = 4;
+    private static final int hashSlotSize = 4;
     public static final int INDEX_HEADER_SIZE = 40;
-    private int  hashSlotNum = 50;
-    private static int indexSize = 4+8+4+8+4;
+    private final int  hashSlotNum = 50;
+    private static final int indexSize = 4+8+4+8+4;
 
     //20个字节
     public static final int CQ_STORE_UNIT_SIZE = 20;
@@ -33,11 +29,11 @@ public class MappedTest {
     private MappedFile commitLogMappedFile;
     private MappedFile indexMappedFile;
 
-    private AtomicInteger consumeOffSet = new AtomicInteger(0);
-    private List<Message> messageList = new ArrayList<>();
-    private AtomicInteger totalMessage = new AtomicInteger(0);
+    private final AtomicInteger consumeOffSet = new AtomicInteger(0);
+    private final List<Message> messageList = new ArrayList<>();
+    private final AtomicInteger totalMessage = new AtomicInteger(0);
     //index索引的数量
-    private AtomicInteger indexNum = new AtomicInteger(0);
+    private final AtomicInteger indexNum = new AtomicInteger(0);
 
     @BeforeEach
     void preTest(){
