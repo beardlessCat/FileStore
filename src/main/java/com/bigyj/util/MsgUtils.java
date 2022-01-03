@@ -15,4 +15,11 @@ public class MsgUtils {
         nf.setGroupingUsed(false);
         return nf.format(offset);
     }
+    public static int indexKeyHashMethod(final String key) {
+        int keyHash = key.hashCode();
+        int keyHashPositive = Math.abs(keyHash);
+        if (keyHashPositive < 0)
+            keyHashPositive = 0;
+        return keyHashPositive;
+    }
 }
