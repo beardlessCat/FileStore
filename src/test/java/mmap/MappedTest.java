@@ -74,7 +74,7 @@ public class MappedTest {
             byteBuffer.put(bytes);
 
             commitLogMappedFile.appendMessage(byteBuffer.array());
-//            this.buildConsumerLog(offset,messageSize,message.getTags());
+            this.buildConsumerLog(offset,messageSize,message.getTags());
             this.buildIndex(offset, messageTime, message.getId(),messageSize);
             offset += messageSize;
         }

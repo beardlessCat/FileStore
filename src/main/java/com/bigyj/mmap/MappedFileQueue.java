@@ -54,12 +54,18 @@ public class MappedFileQueue {
 
     private MappedFile getLastMappedFile(int startOffset, boolean needCreate) {
         MappedFile lastMappedFile = null ;
-                //获取文件名（初始化偏移量作为文件名）
+        //获取文件名（初始化偏移量作为文件名）
         String fileName = MsgUtils.offset2FileName(startOffset);
         if(needCreate){
             lastMappedFile = new MappedFile(this.storePath + "/" + fileName, this.mappedFileSize);
             this.mappedFiles.add(lastMappedFile);
         }
         return lastMappedFile;
+    }
+
+    public MappedFile findMappedFileByOffset(long startIndex) {
+        // fixme 暂不考虑文件删除的情况
+        int index  = (int) (startIndex / mappedFileSize);
+        return this.mappedFiles.get(index);
     }
 }
