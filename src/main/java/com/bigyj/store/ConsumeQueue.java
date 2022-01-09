@@ -1,15 +1,15 @@
 package com.bigyj.store;
 
-import com.bigyj.dispatcher.CommitLogDispatcher;
 import com.bigyj.entity.ConsumeLogIndexObject;
 import com.bigyj.mmap.MappedFile;
 import com.bigyj.mmap.MappedFileQueue;
 import com.bigyj.util.MsgUtils;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConsumeLog implements CommitLogDispatcher {
+public class ConsumeQueue {
     private static final String CONSUME_FILE_PATH = "D://consumeQueue";
     private static final int COMMIT_LOG_FILE_SIZE = 1024 * 64;
     private static final int CQ_STORE_UNIT_SIZE = 20;
@@ -19,14 +19,23 @@ public class ConsumeLog implements CommitLogDispatcher {
 
     private MappedFileQueue mappedFileQueue ;
 
-    public ConsumeLog() {
+    public ConsumeQueue() {
         this.mappedFileQueue = new MappedFileQueue(CONSUME_FILE_PATH,COMMIT_LOG_FILE_SIZE);
+    }
+
+    public MappedFileQueue getMappedFileQueue() {
+        return mappedFileQueue;
+    }
+
+    public void setMappedFileQueue(MappedFileQueue mappedFileQueue) {
+        this.mappedFileQueue = mappedFileQueue;
     }
 
     //启动加载CommitLog文件
     public void load(){
         this.mappedFileQueue.load();
     }
+
     //构建消息分区索引
     void buildConsumerLog(long offset, int size, String tags){
         MappedFile mappedFile = this.mappedFileQueue.getLastMappedFile();
@@ -63,8 +72,33 @@ public class ConsumeLog implements CommitLogDispatcher {
         return new ConsumeLogIndexObject(offsetToRead,sizeToRead,tagToRead);
     }
 
-    @Override
-    public void dispatcher() {
-
+    //恢复consumeQueue文件
+    public long recoverConsumeQueue() {
+        CopyOnWriteArrayList<MappedFile> mappedFiles = this.mappedFileQueue.getMappedFiles();
+        long maxOffset = 0L;
+        for(int i = 0 ;i<mappedFiles.size();i++){
+            MappedFile mappedFile = mappedFiles.get(i);
+            ByteBuffer byteBuffer = mappedFile.sliceByteBuffer();
+            //最后一个文件最大
+            if(i == mappedFiles.size()-1){
+                for (int j = 0; i < mappedFiles.size(); j += CQ_STORE_UNIT_SIZE) {
+                    long offset = byteBuffer.getLong();
+                    int size = byteBuffer.getInt();
+                    long tagsCode = byteBuffer.getLong();
+                    //表示有数据
+                    if (offset >= 0 && size > 0) {
+                        maxOffset  = j + CQ_STORE_UNIT_SIZE;
+                    }else {
+                        //没数据表示已经加载到了文件位置
+                        break;
+                    }
+                }
+            }else {
+                maxOffset = mappedFile.getFileSize();
+            }
+            maxOffset = mappedFile.getFileFromOffset() + maxOffset ;
+            mappedFile.commit((int) maxOffset);
+        }
+        return maxOffset ;
     }
 }

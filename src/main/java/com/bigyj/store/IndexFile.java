@@ -1,6 +1,5 @@
 package com.bigyj.store;
 
-import com.bigyj.dispatcher.CommitLogDispatcher;
 import com.bigyj.mmap.MappedFile;
 import com.bigyj.mmap.MappedFileQueue;
 import com.bigyj.util.MsgUtils;
@@ -9,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IndexFile implements CommitLogDispatcher {
+public class IndexFile {
     private static final String INDEX_FILE_PATH = "D://indexFile";
     private static final int INDEX_FILE_SIZE = 0;
     private MappedFileQueue mappedFileQueue ;
@@ -100,8 +99,4 @@ public class IndexFile implements CommitLogDispatcher {
         return objectObjectHashMap;
     }
 
-    @Override
-    public void dispatcher() {
-
-    }
 }

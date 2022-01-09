@@ -1,5 +1,7 @@
 package com.bigyj.mmap;
 
+import com.bigyj.entity.SelectMappedBufferResult;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,6 +27,26 @@ public class MappedFile {
     private FileChannel fileChannel;
     private long fileFromOffset;
     private MappedByteBuffer mappedByteBuffer;
+
+    public int getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(int fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public AtomicInteger getWrotePosition() {
+        return wrotePosition;
+    }
+
+    public long getFileFromOffset() {
+        return fileFromOffset;
+    }
+
+    public void setFileFromOffset(long fileFromOffset) {
+        this.fileFromOffset = fileFromOffset;
+    }
 
     public MappedByteBuffer getMappedByteBuffer() {
         return mappedByteBuffer;
@@ -72,15 +94,16 @@ public class MappedFile {
         }
         return false;
     }
+
     //消息获取
-    public ByteBuffer selectMappedBuffer(int pos) {
+    public SelectMappedBufferResult selectMappedBuffer(int pos) {
         ByteBuffer byteBuffer = this.mappedByteBuffer.slice();
         byteBuffer.position(pos);
-        int readPosition = this.wrotePosition.get();
+        int readPosition = getReadPosition();
         int size = readPosition - pos;
         ByteBuffer byteBufferNew = byteBuffer.slice();
         byteBufferNew.limit(size);
-        return byteBufferNew ;
+        return new SelectMappedBufferResult(pos+this.fileFromOffset,size,byteBufferNew) ;
     }
 
     /**
@@ -99,5 +122,17 @@ public class MappedFile {
     //判断文件是否已经写满
     public boolean isFull() {
         return false;
+    }
+
+    public int getReadPosition() {
+        return committedPosition.get();
+    }
+
+    public void commit(int offSet){
+        this.committedPosition.set(offSet);
+    }
+
+    public ByteBuffer sliceByteBuffer() {
+        return this.mappedByteBuffer.slice();
     }
 }

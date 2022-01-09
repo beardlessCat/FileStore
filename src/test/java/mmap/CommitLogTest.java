@@ -2,6 +2,7 @@ package mmap;
 
 import com.bigyj.message.Message;
 import com.bigyj.store.CommitLog;
+import com.bigyj.store.ConsumeQueue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +24,8 @@ public class CommitLogTest {
     void msgSendTest(){
         CommitLog commitLog = new CommitLog();
         commitLog.load();
+        ConsumeQueue consumeLog = new ConsumeQueue();
+        consumeLog.load();
         for (Message message : messageList) {
             commitLog.putMessage(message);
         }
