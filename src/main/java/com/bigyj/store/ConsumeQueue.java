@@ -1,6 +1,7 @@
 package com.bigyj.store;
 
 import com.bigyj.entity.ConsumeLogIndexObject;
+import com.bigyj.entity.DispatchRequest;
 import com.bigyj.mmap.MappedFile;
 import com.bigyj.mmap.MappedFileQueue;
 import com.bigyj.util.MsgUtils;
@@ -10,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConsumeQueue {
-    private static final String CONSUME_FILE_PATH = "D://consumeQueue";
+    private static final String CONSUME_FILE_PATH = "D://store//consumeQueue";
     private static final int COMMIT_LOG_FILE_SIZE = 1024 * 64;
     private static final int CQ_STORE_UNIT_SIZE = 20;
 
@@ -37,15 +38,16 @@ public class ConsumeQueue {
     }
 
     //构建消息分区索引
-    void buildConsumerLog(long offset, int size, String tags){
+    public void buildConsumerLog(DispatchRequest dispatchRequest){
+        int size  =dispatchRequest.getSize();
+        String tags = dispatchRequest.getTags();
+        long offset = dispatchRequest.getOffset();
         MappedFile mappedFile = this.mappedFileQueue.getLastMappedFile();
         if(mappedFile==null||mappedFile.isFull()){
             //创建一个新的文件
             mappedFile = this.mappedFileQueue.getLastMappedFile(0);
         }
         ByteBuffer byteBuffer  = ByteBuffer.allocate(CQ_STORE_UNIT_SIZE);
-        byteBuffer.flip();
-        byteBuffer.limit(CQ_STORE_UNIT_SIZE);
         //8个字节存放offset
         byteBuffer.putLong(offset);
         //4个字节存放消息长度
@@ -76,6 +78,7 @@ public class ConsumeQueue {
     public long recoverConsumeQueue() {
         CopyOnWriteArrayList<MappedFile> mappedFiles = this.mappedFileQueue.getMappedFiles();
         long maxOffset = 0L;
+        long indexOffSet = 0 ;
         for(int i = 0 ;i<mappedFiles.size();i++){
             MappedFile mappedFile = mappedFiles.get(i);
             ByteBuffer byteBuffer = mappedFile.sliceByteBuffer();
@@ -85,6 +88,7 @@ public class ConsumeQueue {
                     long offset = byteBuffer.getLong();
                     int size = byteBuffer.getInt();
                     long tagsCode = byteBuffer.getLong();
+                    indexOffSet =indexOffSet> offset?indexOffSet:offset;
                     //表示有数据
                     if (offset >= 0 && size > 0) {
                         maxOffset  = j + CQ_STORE_UNIT_SIZE;
@@ -99,6 +103,6 @@ public class ConsumeQueue {
             maxOffset = mappedFile.getFileFromOffset() + maxOffset ;
             mappedFile.commit((int) maxOffset);
         }
-        return maxOffset ;
+        return indexOffSet ;
     }
 }

@@ -1,8 +1,7 @@
 package mmap;
 
+import com.bigyj.DefaultMessageStore;
 import com.bigyj.message.Message;
-import com.bigyj.store.CommitLog;
-import com.bigyj.store.ConsumeQueue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,12 +21,10 @@ public class CommitLogTest {
 
     @Test
     void msgSendTest(){
-        CommitLog commitLog = new CommitLog();
-        commitLog.load();
-        ConsumeQueue consumeLog = new ConsumeQueue();
-        consumeLog.load();
+        DefaultMessageStore defaultMessageStore = new DefaultMessageStore();
+        defaultMessageStore.start();
         for (Message message : messageList) {
-            commitLog.putMessage(message);
+            // defaultMessageStore.putMessage(message);
         }
     }
 }

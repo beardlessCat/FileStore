@@ -47,9 +47,11 @@ public class MappedFileQueue {
             Arrays.sort(files);
             for (File file : files) {
                 MappedFile mappedFile = new MappedFile(file.getPath(), mappedFileSize);
+                mappedFile.commit(mappedFileSize);
                 this.mappedFiles.add(mappedFile);
             }
         }
+
         return true;
     }
 

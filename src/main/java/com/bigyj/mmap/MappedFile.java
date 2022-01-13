@@ -21,6 +21,8 @@ public class MappedFile {
      * 再刷新到磁盘中
      */
     protected final AtomicInteger committedPosition = new AtomicInteger(0);
+
+
     private String fileName ;
     private int fileSize;
     private File file ;
@@ -81,14 +83,10 @@ public class MappedFile {
         int currentOffSet = wrotePosition.get();
         //判断写入的文件是否大于大于剩余的文件大小
         if((this.fileSize-currentOffSet)>=message.length){
-            try {
-                //当前文件开始的offSet
-                this.fileChannel.position(currentOffSet);
-                //内容写入
-                this.fileChannel.write(ByteBuffer.wrap(message));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            //当前文件开始的offSet
+            this.mappedByteBuffer.position(currentOffSet);
+            //内容写入
+            this.mappedByteBuffer.put(ByteBuffer.wrap(message));
             wrotePosition.addAndGet(message.length);
             return true;
         }
